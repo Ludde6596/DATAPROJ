@@ -8,7 +8,7 @@
 
 ; Replace with your application code
 
-.equ STEPSIZE = 2
+.equ STEPSIZE = 6
  SEKVENS:
  .db $01, $09, $08, $0A, $02, $06, $04, $05
 
