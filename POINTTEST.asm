@@ -188,7 +188,7 @@ X_RESET:
 Y_RESET:
 	cpi r17,ORIGO
 	breq RESET_DONE
-	brpl Y_RESET2
+	brpl Y_RESET1
 Y_RESET2:
 	;;Skicka till plotter
 	ldi r19,$01
@@ -209,6 +209,8 @@ Y_RESET1:
 	cpi r17,ORIGO
 	brpl Y_RESET1
 RESET_DONE:
+	ldi r18,$00
+	ldi r17,ORIGO
 	sts Y_CORD,r17
 	sts X_CORD,r18
 
@@ -222,27 +224,34 @@ RESET_DONE:
 PLAY_GAME:
 	push r17
 	push r18
-	push ZH
-	push ZL
-	ldi ZH,HIGH(Y_VAL)
-	ldi ZL,LOW(Y_VAL)
-PLAY_LOOP:				;Loop för spel omgång
-	lds r17,X_CORD
+	push r19
+	push r20
+	push YH
+	push YL
+	ldi YH,HIGH(Y_VAL)
+	ldi YL,LOW(Y_VAL)
+	ldi r20,$00
+PLAY_LOOP:
+	lds r17,X_CORD				;Loop för spel omgång
 	call JOYSTICK
 	lds r18,X_CORD
-	cp r18,r17
-	ld r17,Z+
-	breq NO_XCHANGE
-POINT_SYSTEM:
-	lds r18,Y_CORD
-	cp r17,r18			;Kontroll om spelaren ligger på samma YPOS som kartan 
-	brne NO_XCHANGE		;Poäng om Y_CORD = Y_VAL på samma XPOS
-	INCSRAM POINTS
-NO_XCHANGE:
+	cp r17,r18
+	breq PLAY_LOOP
+POINT_CALC:
+	ld r17,Y+
+	lds r19,Y_CORD
+	cp r17,r19			;Kontroll om spelaren ligger på samma YPOS som kartan 
+	brne NO_POINT		;Poäng om Y_CORD = Y_VAL på samma XPOS
+	inc r20
+NO_POINT:
+	out PORTD,r20
 	cpi r18,MAPSIZE		;Kontroll om spelaren har kört hela banan
+	sts POINTS,r20
 	brne PLAY_LOOP
-	pop ZL
-	pop ZH
+	pop YL
+	pop YH
+	pop r20
+	pop r19
 	pop r18
 	pop r17
 	ret
@@ -286,20 +295,10 @@ WAIT_1:
 	rjmp WAIT_1
 	in r16,ADCH
 	cpi r16,$03
-	brne X_CHECK
+	brne JOYSTICK_Y
 	INCSRAM X_CORD
 	;;Skicka till plotter
 	ldi r17,$04
-	push r17
-	call SEND
-	pop r17
-	rjmp JOYSTICK_Y
-X_CHECK:
-	cpi r16,$00
-	brne JOYSTICK_Y
-	DECSRAM X_CORD
-	;;Skicka till plotter
-	ldi r17,$06
 	push r17
 	call SEND
 	pop r17
@@ -437,5 +436,4 @@ HW_INIT:
 	ldi r16, (1<<MSTR)|(1<<SPE)|(1<<SPR1)
 	sbi PORTB,4
 	out SPCR,r16
-	
 	ret
