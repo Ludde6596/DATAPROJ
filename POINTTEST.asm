@@ -9,7 +9,7 @@
 ; Replace with your application code
 .equ MAPSIZE = 50
 .equ STEPSIZE = 5
-.equ ORIGO = 15	;63 riktiga värdet
+.equ ORIGO = 15	;63 riktiga vÃ¤rdet
 
 .dseg
 .org $0100
@@ -89,9 +89,9 @@ RANDOM:
 	in r20,TCNT0
 	add r18,r20
 
-	andi r18,$1F	;and med $7F för att få bort msb 
+	andi r18,$1F	;and med $7F fÃ¶r att fÃ¥ bort msb 
 	cpi r18,$1E	
-	brpl R_ADJUST	;kontroll av rand för att den ej ska bli större än 126	
+	brpl R_ADJUST	;kontroll av rand fÃ¶r att den ej ska bli stÃ¶rre Ã¤n 126	
 	rjmp MAP_2
 R_ADJUST:
 	subi r18,ORIGO
@@ -120,14 +120,14 @@ PLOT_MAP:
 	push ZH
 	push ZL
 
-	ldi r16,ORIGO	;sätter ut y-origo
-	ldi r18,$00		;sätter ut x-origo
+	ldi r16,ORIGO	;sÃ¤tter ut y-origo
+	ldi r18,$00		;sÃ¤tter ut x-origo
 	ldi ZH,HIGH(Y_VAL)
 	ldi ZL,LOW(Y_VAL)
 PLOT_LOOP:
 	ld r17,Z+
 	out PORTA,r17
-	cp r17,r16			;Jämför Y_VAL med nuvarande y-koord
+	cp r17,r16			;JÃ¤mfÃ¶r Y_VAL med nuvarande y-koord
 	breq X_ADJUST
 	brpl YUP_ADJUST
 YDOWN_ADJUST:
@@ -175,8 +175,8 @@ RESET_MAP:
 	push r18
 	push r19
 
-	lds	r18, X_CORD		;LADDAR x-koordinat från sram
-	lds r17, Y_CORD		;LADDAR y-koordinat från sram
+	lds	r18, X_CORD		;LADDAR x-koordinat frÃ¥n sram
+	lds r17, Y_CORD		;LADDAR y-koordinat frÃ¥n sram
 X_RESET:
 	;;Skicka till plotter
 	ldi r19,$06
@@ -217,7 +217,7 @@ RESET_DONE:
 	pop r17
 	ret
 
-;Spelar och poäng program-----------------
+;Spelar och poÃ¤ng program-----------------
 
 PLAY_GAME:
 	push r17
@@ -226,7 +226,7 @@ PLAY_GAME:
 	push ZL
 	ldi ZH,HIGH(Y_VAL)
 	ldi ZL,LOW(Y_VAL)
-PLAY_LOOP:				;Loop för spel omgång
+PLAY_LOOP:				;Loop fÃ¶r spel omgÃ¥ng
 	lds r17,X_CORD
 	call JOYSTICK
 	lds r18,X_CORD
@@ -235,11 +235,11 @@ PLAY_LOOP:				;Loop för spel omgång
 	breq NO_XCHANGE
 POINT_SYSTEM:
 	lds r18,Y_CORD
-	cp r17,r18			;Kontroll om spelaren ligger på samma YPOS som kartan 
-	brne NO_XCHANGE		;Poäng om Y_CORD = Y_VAL på samma XPOS
+	cp r17,r18			;Kontroll om spelaren ligger pÃ¥ samma YPOS som kartan 
+	brne NO_XCHANGE		;PoÃ¤ng om Y_CORD = Y_VAL pÃ¥ samma XPOS
 	INCSRAM POINTS
 NO_XCHANGE:
-	cpi r18,MAPSIZE		;Kontroll om spelaren har kört hela banan
+	cpi r18,MAPSIZE		;Kontroll om spelaren har kÃ¶rt hela banan
 	brne PLAY_LOOP
 	pop ZL
 	pop ZH
@@ -252,7 +252,7 @@ BCD_CODE:
 	push r16
 	push r17
 	
-	lds r16,POINTS		;Laddar poäng från sram
+	lds r16,POINTS		;Laddar poÃ¤ng frÃ¥n sram
 	mov r17,r16
 	andi r17,$F0
 	andi r16,$0F
@@ -264,7 +264,7 @@ BCD_CODE:
 	swap r17
 NO_CHANGE:
 	add r16,r17
-	out PORTD,r16		;Utskrift av poäng till BCD Displayerna
+	out PORTD,r16		;Utskrift av poÃ¤ng till BCD Displayerna
 	
 	pop r17
 	pop r16
@@ -338,7 +338,7 @@ Y_FIN:
 	ret
 
 	;DELAY PROGRAM-----------------------------
-PLAYER_DELAY: ;250ms delay på 8MHz
+PLAYER_DELAY: ;250ms delay pÃ¥ 8MHz
 	push r16
 	push r17
 	ldi r16, $04
@@ -353,7 +353,7 @@ PLAYER_DELAY2:
 	pop r16
 	ret
 
-DELAY: ;1ms delay på 8MHz
+DELAY: ;1ms delay pÃ¥ 8MHz
 	push r16
 	push r17
 	ldi r16, $A0
@@ -369,7 +369,7 @@ DELAY2:
 	ret
 
 
-;;SEND underprogram finns i både plotterjoy och mapcreation
+;;SEND underprogram finns i bÃ¥de plotterjoy och mapcreation
 SEND:
 	push ZH
 	push ZL
@@ -419,7 +419,7 @@ PEN_UP:
 	ret
 
 HW_INIT:
-	;IN/UT inställnigar på portar
+	;IN/UT instÃ¤llnigar pÃ¥ portar
 	ldi r16,$F0
 	out DDRA,r16
 	ldi r16,$FF
