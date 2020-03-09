@@ -4,9 +4,9 @@
  *  Created: 2020-03-08 19:15:30
  *   Author: ludbe973
  */ 
-.equ MAPSIZE = 20
-.equ STEPSIZE = 3
-.equ ORIGO = 7	;63 riktiga v‰rdet
+.equ MAPSIZE = 30
+.equ STEPSIZE = 5
+.equ ORIGO = 7	;63 riktiga v√§rdet
 
 .dseg
 .org $0100
@@ -46,6 +46,7 @@ WARM:
 	sbis PINB,2
 	rjmp WARM
 	call MAP_CREATION
+RESET_GAME:
 	call PEN_DOWN
 	call PLOT_MAP
 	call PEN_UP
@@ -54,12 +55,15 @@ GAME_START:
 	call PEN_DOWN
 	call PLAY_GAME
 	call PEN_UP
-	call RESET_MAP
+	;call RESET_MAP
 POINT_TESTING:
-	lds r16,POINTS
-	out PORTD,r16
+	;lds r16,POINTS
+	;out PORTD,r16
+	call BCD_CODE
 FINISH:
+	sbis PINB,2
 	rjmp FINISH
+	rjmp RESET_GAME
 
 MAP_CREATION:
 	push r16
@@ -86,9 +90,9 @@ RANDOM:
 	in r20,TCNT0
 	add r18,r20
 
-	andi r18,$0F	;and med $7F fˆr att fÂ bort msb 
+	andi r18,$0F	;and med $7F f√∂r att f√• bort msb 
 	cpi r18,$0E	
-	brpl R_ADJUST	;kontroll av rand fˆr att den ej ska bli stˆrre ‰n 126	
+	brpl R_ADJUST	;kontroll av rand f√∂r att den ej ska bli st√∂rre √§n 126	
 	rjmp MAP_2
 R_ADJUST:
 	subi r18,ORIGO
@@ -117,14 +121,14 @@ PLOT_MAP:
 	push ZH
 	push ZL
 
-	ldi r16,ORIGO	;s‰tter ut y-origo
-	ldi r18,$00		;s‰tter ut x-origo
+	ldi r16,ORIGO	;s√§tter ut y-origo
+	ldi r18,$00		;s√§tter ut x-origo
 	ldi ZH,HIGH(Y_VAL)
 	ldi ZL,LOW(Y_VAL)
 PLOT_LOOP:
 	ld r17,Z+
 	out PORTA,r17
-	cp r17,r16			;J‰mfˆr Y_VAL med nuvarande y-koord
+	cp r17,r16			;J√§mf√∂r Y_VAL med nuvarande y-koord
 	breq X_ADJUST
 	brpl YUP_ADJUST
 YDOWN_ADJUST:
@@ -172,8 +176,8 @@ RESET_MAP:
 	push r18
 	push r19
 
-	lds	r18, X_CORD		;LADDAR x-koordinat frÂn sram
-	lds r17, Y_CORD		;LADDAR y-koordinat frÂn sram
+	lds	r18, X_CORD		;LADDAR x-koordinat fr√•n sram
+	lds r17, Y_CORD		;LADDAR y-koordinat fr√•n sram
 X_RESET:
 	;;Skicka till plotter
 	ldi r19,$06
@@ -216,7 +220,7 @@ RESET_DONE:
 	pop r17
 	ret
 
-;Spelar och po‰ng program-----------------
+;Spelar och po√§ng program-----------------
 
 PLAY_GAME:
 	push r17
@@ -229,7 +233,7 @@ PLAY_GAME:
 	ldi YL,LOW(Y_VAL)
 	ldi r20,$00
 PLAY_LOOP:
-	lds r17,X_CORD				;Loop fˆr spel omgÂng
+	lds r17,X_CORD				;Loop f√∂r spel omg√•ng
 	call PLAYER_DELAY
 	call JOYSTICK
 	lds r18,X_CORD
@@ -238,12 +242,12 @@ PLAY_LOOP:
 POINT_CALC:
 	ld r17,Y+
 	lds r19,Y_CORD
-	cp r17,r19			;Kontroll om spelaren ligger pÂ samma YPOS som kartan 
-	brne NO_POINT		;Po‰ng om Y_CORD = Y_VAL pÂ samma XPOS
+	cp r17,r19			;Kontroll om spelaren ligger p√• samma YPOS som kartan 
+	brne NO_POINT		;Po√§ng om Y_CORD = Y_VAL p√• samma XPOS
 	inc r20
 NO_POINT:
-	out PORTD,r20
-	cpi r18,MAPSIZE		;Kontroll om spelaren har kˆrt hela banan
+	;out PORTD,r20
+	cpi r18,MAPSIZE		;Kontroll om spelaren har k√∂rt hela banan
 	sts POINTS,r20
 	brne PLAY_LOOP
 	pop YL
@@ -259,7 +263,7 @@ BCD_CODE:
 	push r16
 	push r17
 	
-	lds r16,POINTS		;Laddar po‰ng frÂn sram
+	lds r16,POINTS		;Laddar po√§ng fr√•n sram
 	mov r17,r16
 	andi r17,$F0
 	andi r16,$0F
@@ -271,7 +275,7 @@ BCD_CODE:
 	swap r17
 NO_CHANGE:
 	add r16,r17
-	out PORTD,r16		;Utskrift av po‰ng till BCD Displayerna
+	out PORTD,r16		;Utskrift av po√§ng till BCD Displayerna
 	
 	pop r17
 	pop r16
@@ -335,7 +339,7 @@ Y_FIN:
 	ret
 
 	;DELAY PROGRAM-----------------------------
-PLAYER_DELAY: ;250ms delay pÂ 8MHz
+PLAYER_DELAY: ;250ms delay p√• 8MHz
 	push r16
 	push r17
 	ldi r16, $04
@@ -350,7 +354,7 @@ PLAYER_DELAY2:
 	pop r16
 	ret
 
-DELAY: ;1ms delay pÂ 8MHz
+DELAY: ;1ms delay p√• 8MHz
 	push r16
 	push r17
 	ldi r16, $A0
@@ -366,7 +370,7 @@ DELAY2:
 	ret
 
 
-;;SEND underprogram finns i bÂde plotterjoy och mapcreation
+;;SEND underprogram finns i b√•de plotterjoy och mapcreation
 SEND:
 	push ZH
 	push ZL
@@ -416,7 +420,7 @@ PEN_UP:
 	ret
 
 HW_INIT:
-	;IN/UT inst‰llnigar pÂ portar
+	;IN/UT inst√§llnigar p√• portar
 	ldi r16,$F0
 	out DDRA,r16
 	ldi r16,$FF
