@@ -4,8 +4,8 @@
  *  Created: 2020-03-08 19:15:30
  *   Author: ludbe973
  */ 
-.equ MAPSIZE = 30
-.equ STEPSIZE = 5
+.equ MAPSIZE = 50
+.equ STEPSIZE = 3
 .equ ORIGO = 7	;63 riktiga värdet
 
 .dseg
