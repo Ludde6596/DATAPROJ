@@ -65,6 +65,7 @@ NO_MOV:
 
 ;UNDERPROGRAM
 
+;Underprogram som bestämmer steglängd genom upprepade körningar av plottersteg 
 XSTEP:
 	push r16
 	ldi r16,STEPSIZE
@@ -105,6 +106,7 @@ YDOWNSTEP1:
 	pop r16
 	ret
 
+;Program för sändning av sekvenser till Plottern
 XRIGHT:
 	push r16
 	push r17
@@ -117,9 +119,9 @@ XRIGHT2:
 	lpm r16, Z+
 	out PORTD, r16
 	inc r17
-	call DELAY
+	call DELAY	;Delay som bestämmer frekvensen på sändningen till plottern
 	cpi r17, $08
-	brne XRIGHT2
+	brne XRIGHT2	;Loppar igenom SEKVENS
 	pop ZL
 	pop ZH
 	pop r17
@@ -133,7 +135,7 @@ XLEFT:
 	push ZL
 	ldi ZH,HIGH(SEKVENS*2)
 	ldi ZL,LOW(SEKVENS*2)
-	adiw Z,$07
+	adiw Z,$07	;Loopar igenom SEKVENS från sista element
 	ldi r17, $00
 XLEFT2:
 	lpm r16, Z
