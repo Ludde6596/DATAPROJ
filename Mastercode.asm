@@ -55,10 +55,7 @@ GAME_START:
 	call PEN_DOWN
 	call PLAY_GAME
 	call PEN_UP
-	;call RESET_MAP
 POINT_TESTING:
-	;lds r16,POINTS
-	;out PORTD,r16
 	call BCD_CODE
 FINISH:
 	sbis PINB,2
@@ -76,28 +73,27 @@ MAP_CREATION:
 	ldi r16,MAPSIZE ;antal loops
 	ldi YH,HIGH(Y_VAL)
 	ldi YL,LOW(Y_VAL)
-	ldi r18,1
 MAP_1:
 	ldi r17,STEPSIZE
 	cpi r16,MAPSIZE
-	brne RANDOM
-	ldi r18,ORIGO
+	brne RANDOM	
+	ldi r18,ORIGO	;börjar banan i origo
 	breq MAP_2
 RANDOM:
+	;Gör några matematiska operationer beroende av TCNT0 för att generera "slumpmässiga" tal
 	ldi r20, $F5
-	;in r18,TCNT0	;TCNT0
 	mul r18,r20
 	in r20,TCNT0
 	add r18,r20
 
 	andi r18,$0F	;and med $7F för att få bort msb 
 	cpi r18,$0E	
-	brpl R_ADJUST	;kontroll av rand för att den ej ska bli större än 126	
+	brpl R_ADJUST	;kontroll av rand för att den ej ska bli större än $0E
 	rjmp MAP_2
 R_ADJUST:
 	subi r18,ORIGO
 MAP_2:
-	;set Y_CORD VALUES WITH RANDOM
+	;set Y_CORD VALUES WITH RANDOM beroende på STEPSIZE
 	st Y+,r18
 	dec r16
 	dec r17
@@ -127,8 +123,7 @@ PLOT_MAP:
 	ldi ZL,LOW(Y_VAL)
 PLOT_LOOP:
 	ld r17,Z+
-	out PORTA,r17
-	cp r17,r16			;Jämför Y_VAL med nuvarande y-koord
+	cp r17,r16			;Jämför Y_VAL med nuvarande y-koord justerar y om de ej är lika och x om de är lika
 	breq X_ADJUST
 	brpl YUP_ADJUST
 YDOWN_ADJUST:
